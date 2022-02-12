@@ -1,0 +1,116 @@
+{% extends '../base.html' %} {% load static %} {% block content %}
+<!-- Page Content -->
+<!-- Banner Starts Here -->
+<div class="banner header-text">
+  <div class="owl-banner owl-carousel">
+    <div class="banner-item-01">
+      <div class="text-content">
+        <h4>Meilleurs Offres</h4>
+        <h2>Rabais aux nouveaux utilisateurs</h2>
+      </div>
+    </div>
+    <div class="banner-item-02">
+      <div class="text-content">
+        <h4>Sécurité &amp; Confiance</h4>
+        <h2>Un token simple pour une meilleure utilisation</h2>
+      </div>
+    </div>
+    <div class="banner-item-03">
+      <div class="text-content">
+        <h4>N'attendez pas à la dernière minute</h4>
+        <h2>Réservez maintenant</h2>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Banner Ends Here -->
+
+<div class="latest-products">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="section-heading">
+          <h2>Annonces Récentes</h2>
+          <a href="{% url 'postings' %}">Voir toutes les annonces <i class="fa fa-angle-right"></i></a>
+        </div>
+      </div>
+
+      {% for posting in postings %}
+      <div class="col-md-4">
+        <div class="product-item">
+          <a href="#"><img src="{% static '{{ posting.image_url }}' %}" alt="" /></a>
+          <div class="down-content">
+            <a href="#">
+              <h4>{{ posting.title }}</h4>
+            </a>
+            <h6>{{ posting.cost_per_day }}$</h6>
+            <p>{{ posting.description }}</p>
+
+            <ul class="stars">
+              <li><em class="fa fa-star"></em></li>
+              <li><em class="fa fa-star"></em></li>
+              <li><em class="fa fa-star"></em></li>
+              <li><em class="fa fa-star"></em></li>
+              <li><em class="fa fa-star"></em></li>
+            </ul>
+
+            <span>Reviews (24)</span>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+
+    </div>
+  </div>
+</div>
+
+<div class="best-features">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="section-heading">
+          <h2>À Propos de nous</h2>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="left-content">
+          <h4>Vous recherchez les meilleurs offres?</h4>
+          <ul class="featured-list">
+            <li><a href="#">Appartements</a></li>
+            <li><a href="#">Maison</a></li>
+            <li><a href="#">Chalet</a></li>
+            <li><a href="#">Château</a></li>
+            <li><a href="#">Maison d'hôtes</a></li>
+          </ul>
+          <a href="{% url 'about' %}" class="filled-button">En savoir plus</a>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="right-image">
+          <img src="{% static 'assets/images/feature-image.jpg' %}" alt="" />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="call-to-action">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="inner-content">
+          <div class="row">
+            <div class="col-md-8">
+              <h4>Nous récompensons nos meilleurs utilisateurs <em></em></h4>
+              <p>Chaque mois les utilisateurs les plus réguliers de notre site reçoivent des récompenses alors n'hésitez pas !</p>
+            </div>
+            <div class="col-md-4">
+              <a href="#" class="filled-button">Réservez Maintenant</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
