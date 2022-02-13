@@ -22,7 +22,7 @@ pip install -r requirements.txt
 ### Lancer le serveur
 
 ```
-cd Solution-possible-pour-le-vote/Site-generation-clef
+cd Solution-possible-pour-le-vote/Generation-clef
 python manage.py runserver
 ```
 
