@@ -15,7 +15,7 @@ git clone https://github.com/FloGalaup/Solution-possible-pour-le-vote.git
 ### Installer les dépendances Python
 
 ```
-cd Solution-possible-pour-le-vote/Site-generation-clef
+cd Solution-possible-pour-le-vote/
 pip install -r requirements.txt
 ```
 
