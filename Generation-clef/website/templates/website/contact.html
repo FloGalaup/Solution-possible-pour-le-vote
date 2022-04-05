@@ -20,6 +20,18 @@
         <div class="card" style ="width: 70rem;">
             <div class="container">
             <div class="row">
+                <div class="row">
+                    <div class="col">
+                      <form action="{% url 'add_wallet' user.id %}" method="POST">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="wallet_name">Créer un portefeuille</label>
+                            <input type="text" class="form-control" id="wallet_name" name="wallet_name" aria-describedby="emailHelp" placeholder="Nom du Portefeuille">
+                        </div>
+                        <button type="submit" class="btn btn-outline-primary"><em class="fa fa-plus"></em></button>
+                      </form>
+                    </div>
+                  </div>
                 <div class="col">
                 {% for wallet in wallets %}
                     {%if wallet.owner == user.id%}
