@@ -55,6 +55,38 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'contact' %}">Création du couple de clef</a>
                         </li>
+                        {% if request.session.username and request.session.id_ %}
+
+                        <li class="nav-item">
+                        <a
+                            class="nav-link"
+                            href="{% url 'dashboard' request.session.id_ %}"
+                            >Mon Profil</a
+                        >
+                        </li>
+                        <li
+                        class="nav-item {% if title == 'view_key' %} active {% endif %}"
+                        >
+                        <a class="nav-link" href="{% url 'view_key' request.session.id_%}">Sécurité</a>
+                        </li>
+                        <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout' %}">Déconnexion</a>
+                        </li>
+
+                        {% else %}
+
+                        <li
+                        class="nav-item {% if title == 'Inscription' %} active {% endif %}"
+                        >
+                        <a class="nav-link" href="{% url 'register' %}">Inscription</a>
+                        </li>
+                        <li
+                        class="nav-item {% if title == 'Connexion' %} active {% endif %}"
+                        >
+                        <a class="nav-link" href="{% url 'login' %}">Se Connecter</a>
+                        </li>
+
+                        {% endif %}
                     </ul>
                 </div>
             </div>
