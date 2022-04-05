@@ -1,0 +1,92 @@
+{% extends '../base.html' %}
+{% load static %}
+
+{% block content %}
+    <!-- Page Content -->
+    <div class="page-heading about-heading header-text">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="text-content">
+              <h4>À propos</h4>
+              <h2>notre entreprise</h2>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="best-features about-features">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="section-heading">
+              <h2>Notre histoire</h2>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="right-image">
+              <img src="{% static 'assets/images/feature-image.jpg' %}" alt="">
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="left-content">
+              <h4>Qui sommes nous &amp; Que faisons nous?</h4>
+              <p>Étudiants en baccalauréat en Informatique, nous devons réaliser, dans le cadre de Systèmes ditribués, le déploiement d'une cryptomonnaie et d'un site web visant à fournir un service. 
+                  Nous avons décidé de créer une plateforme de réservation de biens immobiliers.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="team-members">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="section-heading">
+              <h2>Les membres de l'équipe</h2>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="team-member">
+              <div class="thumb-container">
+                <img src="{% static 'assets/images/mutant1.png' %}" alt="">
+              </div>
+              <div class="down-content">
+                <h4>Jerôme Parent</h4>
+                <span>CO-Founder</span>
+                <p>Passioné d'informatique et professionnel inspiré, il est l'élement indispensable qui a permis la création de notre base de donnée et du concept de notre site web.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="team-member">
+              <div class="thumb-container">
+                <img src="{% static 'assets/images/mutant3.png' %}" alt="">
+              </div>
+              <div class="down-content">
+                <h4>Florian Galaup</h4>
+                <span>CO-Founder</span>
+                <p>Toujours renseigné sur les dernières actualités cryptographiques et de sécurité informatique, Florian est à l'origine de notre modèle sécuritaire et de la génération de notre monnaie.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="team-member">
+              <div class="thumb-container">
+                <img src="{% static 'assets/images/mutant2.png' %}" alt="">
+              </div>
+              <div class="down-content">
+                <h4>Pierre-Jean Gasc</h4>
+                <span>CO-Founder</span>
+                <p>Pierre-Jean est un globe-trotteur et ses différentes expériences ont été essentielles afin de concevoir notre site.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock content %}

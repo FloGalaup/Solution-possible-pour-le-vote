@@ -1,6 +1,7 @@
 from datetime import datetime
-from .models import User, Wallet, Asset, Posting, Reservation
+from .models import Transaction, User, Wallet, Asset, Posting, Reservation
 from .serializers import (
+    TransactionSerializer,
     UserSerializer,
     WalletSerializer,
     AssetSerializer,
@@ -13,7 +14,8 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
-
+from Crypto.PublicKey import RSA
+import datetime
 
 class UserViewSet(viewsets.ViewSet):
     def list(self, request):
@@ -27,8 +29,6 @@ class UserViewSet(viewsets.ViewSet):
 
         user.username = request.data["username"]
         user.email = request.data["email"]
-        user.rating = request.data["rating"]
-        user.picture_url = request.data["picture_url"]
         user.password = request.data["password"]
 
         user.save()
@@ -54,6 +54,9 @@ class UserViewSet(viewsets.ViewSet):
         user.rating = request.data["rating"]
         user.picture_url = request.data["picture_url"]
         user.password = request.data["password"]
+        user.is_admin = request.data["is_admin"]
+
+        user.save()
 
         user_serializer = UserSerializer(user)
 
@@ -67,9 +70,13 @@ class UserViewSet(viewsets.ViewSet):
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(detail=True, methods=["POST"])
-    def custom(self, request, pk=None):
-        pass
+    @action(detail=False, methods=["GET"], url_path="login/(?P<username>\w+)")
+    def login(self, request, username):
+        user = get_object_or_404(User, username=username)
+
+        user_serializer = UserSerializer(user)
+
+        return Response(user_serializer.data, status=status.HTTP_200_OK)
 
 
 class WalletViewSet(viewsets.ViewSet):
@@ -88,8 +95,9 @@ class WalletViewSet(viewsets.ViewSet):
 
         wallet.owner = user
         wallet.name = request.data["name"]
-        wallet.private_key = "xyz"  #! Create Private Key
-        wallet.public_key = "xyz"  #! Create Public Key
+        key = RSA.generate(2048)
+        wallet.private_key = key.export_key()  #! Create Private Key
+        wallet.public_key = key.publickey().export_key()  #! Create Public Key
         wallet.funds = 0
 
         wallet.save()
@@ -111,6 +119,9 @@ class WalletViewSet(viewsets.ViewSet):
         wallet = get_object_or_404(queryset, pk=pk)
 
         wallet.name = request.data["name"]
+        wallet.funds = request.data["funds"]
+
+        wallet.save()
 
         wallet_serializer = WalletSerializer(wallet)
 
@@ -151,7 +162,7 @@ class AssetViewSet(viewsets.ViewSet):
         asset.name = request.data["name"]
         asset.description = request.data["description"]
         asset.image_url = request.data["image_url"]
-        asset.rating = request.data["rating"]
+        asset.rating = None
 
         asset.save()
 
@@ -175,6 +186,8 @@ class AssetViewSet(viewsets.ViewSet):
         asset.description = request.data["description"]
         asset.image_url = request.data["image_url"]
         asset.rating = request.data["rating"]
+
+        asset.save()
 
         asset_serializer = AssetSerializer(asset)
 
@@ -210,7 +223,7 @@ class PostingViewSet(viewsets.ViewSet):
         posting.asset = asset
         posting.title = request.data["title"]
         posting.description = request.data["description"]
-        posting.available = request.data["available"]
+        posting.available = True
 
         date_posted = datetime.now()
         posting.date_posted = date_posted
@@ -245,6 +258,8 @@ class PostingViewSet(viewsets.ViewSet):
         posting.starting_date = request.data["starting_date"]
         posting.end_date = request.data["end_date"]
         posting.cost_per_day = request.data["cost_per_day"]
+
+        posting.save()
 
         posting_serializer = PostingSerializer(posting)
 
@@ -286,7 +301,8 @@ class ReservationViewSet(viewsets.ViewSet):
         reservation.starting_date = request.data["starting_date"]
         reservation.end_date = request.data["end_date"]
         reservation.date_booked = datetime.now()
-        reservation.total_cost = calculate_reservation_cost(posting)
+        reservation.last_modified = datetime.now()
+        reservation.total_cost = calculate_reservation_cost(posting)  #! PAS IMPLÉMENTÉ
 
         reservation.save()
 
@@ -321,6 +337,8 @@ class ReservationViewSet(viewsets.ViewSet):
         reservation.last_modified = datetime.now()
         reservation.total_cost = calculate_reservation_cost(posting)
 
+        reservation.save()
+
         reservation_serializer = ReservationSerializer(reservation)
 
         return Response(reservation_serializer.data, status=status.HTTP_200_OK)
@@ -336,3 +354,40 @@ class ReservationViewSet(viewsets.ViewSet):
     @action(detail=True, methods=["POST"])
     def custom(self, request, pk=None):
         pass
+
+
+class TransactionViewSet(viewsets.ViewSet):
+    def list(self, request):
+        transactions = Transaction.objects.all().order_by("date")
+        transactions_serializer = TransactionSerializer(transactions, many=True)
+
+        return Response(transactions_serializer.data, status=status.HTTP_200_OK)
+
+    def create(self, request):
+        transaction = Transaction()
+
+        wallet_queryset = Wallet.objects.all()
+        sender_pk = request.data["sender_id"]
+        sender = get_object_or_404(wallet_queryset, pk=sender_pk)
+
+        receiver_pk = request.data["receiver_id"]
+        receiver = get_object_or_404(wallet_queryset, pk=receiver_pk)
+
+        transaction.sender = sender
+        transaction.receiver = receiver
+        transaction.amount = request.data["amount"]
+        transaction.date = datetime.now()
+
+        transaction.save()
+
+        transaction_serializer = TransactionSerializer(transaction)
+
+        return Response(transaction_serializer.data, status=status.HTTP_201_CREATED)
+
+    def retrieve(self, request, pk=None):
+        queryset = Transaction.objects.all()
+        transaction = get_object_or_404(queryset, pk=pk)
+
+        transaction_serializer = TransactionSerializer(transaction)
+
+        return Response(transaction_serializer.data, status=status.HTTP_200_OK)

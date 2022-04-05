@@ -10,6 +10,7 @@ class User(models.Model):
     )
     picture_url = models.CharField(max_length=1024, default=None, blank=True, null=True)
     password = models.CharField(max_length=255)
+    is_admin = models.BooleanField(default=False)
 
 
 class Wallet(models.Model):
@@ -17,7 +18,7 @@ class Wallet(models.Model):
     name = models.CharField(max_length=20)
     private_key = models.CharField(max_length=255, default=None, blank=True)
     public_key = models.CharField(max_length=255, default=None, blank=True)
-    funds = models.DecimalField(default=0, max_digits=5, decimal_places=2, blank=True)
+    funds = models.DecimalField(default=0, max_digits=10, decimal_places=2, blank=True)
 
 
 class Asset(models.Model):
@@ -52,3 +53,14 @@ class Reservation(models.Model):
     total_cost = models.DecimalField(
         default=0, max_digits=5, decimal_places=2, blank=True
     )
+
+
+class Transaction(models.Model):
+    sender = models.ForeignKey(
+        Wallet, on_delete=models.CASCADE, default=None, related_name="sender"
+    )
+    receiver = models.ForeignKey(
+        Wallet, on_delete=models.CASCADE, default=None, related_name="receiver"
+    )
+    amount = models.DecimalField(default=0, max_digits=5, decimal_places=2, blank=True)
+    date = models.DateTimeField(default=None, blank=True)

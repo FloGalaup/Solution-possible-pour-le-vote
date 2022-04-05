@@ -1,0 +1,218 @@
+{% extends '../base.html' %} {% load static %} {% block content %}
+<!-- Page Content -->
+<div class="banner header-text">
+  <div class="banner-item-01">
+    <div class="text-content">
+      {% if user %}
+
+      <h2>Bienvenue, {{ user.username }} (Admin)</h2>
+
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<body>
+  <div></div>
+  <div class="container">
+    {% comment %} Profile & Reservations {% endcomment %}
+    <div class="row">
+      {% comment %} Profile {% endcomment %}
+      <div class="col-lg-5 my-5 mx-auto text-center">
+        <div class="card">
+          {% if user %}
+
+          <img class="card-img-top" src="{% static 'assets/images/profile_picture.png' %}" alt="Card image cap" />
+          <div class="card-body">
+            <div class="container">
+              <div class="row">
+                <div class="col">
+                  <h5 class="card-text"><em class="fa fa-user"></em> {{ user.username }}</h5>
+                  <h5 class="card-text"><em class="fa fa-envelope"></em> {{ user.email }}</h5>
+                  <a href="#" class="btn btn-outline-primary my-3 mx-auto">Modifier</a>
+      
+                </div>
+              </div>
+              <div class="row">
+                <div class="col">
+                  {% if wallet %}
+
+                  <h5 class="card-text">
+                    <em class="fa fa-money"></em> {{ wallet.name }} - {{ wallet.funds }}
+                  </h5>
+      
+                  <a href="#" class="btn btn-outline-primary my-3 mx-auto"
+                    >Ajouter des Fonds</a
+                  >
+                  <a href="#" class="btn btn-outline-danger my-3 mx-auto">Retrait</a>
+                  
+                  {% endif %}
+                </div>
+              </div>
+              <div class="row">
+                <div class="col">
+                  <form action="{% url 'add_wallet' user.id %}" method="POST">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="wallet_name">Créer un portefeuille</label>
+                        <input type="text" class="form-control" id="wallet_name" name="wallet_name" aria-describedby="emailHelp" placeholder="Nom du Portefeuille">
+                    </div>
+                    <button type="submit" class="btn btn-outline-primary"><em class="fa fa-plus"></em></button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {% endif %}
+        </div>
+      </div>
+      {% comment %} Reservations {% endcomment %}
+      <div class="col-lg-5 my-5 mx-auto text-center">
+        <table class="table table-striped">
+          <caption>
+            Réservations
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Début</th>
+              <th scope="col">Fin</th>
+              <th scope="col">Coût Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for reservation in reservations %}
+
+            <tr>
+              <th scope="row">{{ reservation.id }}</th>
+              <td>{{ reservation.starting_date }}</td>
+              <td>{{ reservation.end_date }}</td>
+              <td>{{ reservation.total_cost }}</td>
+            </tr>
+
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% comment %} Users & Wallets {% endcomment %}
+    <div class="row">
+      <div class="col-lg-5 my-5 mx-auto text-center">
+        <table class="table table-striped">
+          <caption>
+            Utilisateurs
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Pseudonyme</th>
+              <th scope="col">Courriel</th>
+              <th scope="col">Cote</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in users %}
+
+            <tr>
+              <th scope="row">{{ user.id }}</th>
+              <td><a href="{% url 'dashboard' user.id %}">{{ user.username }}</a></td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.rating }}</td>
+            </tr>
+
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% comment %} Wallets {% endcomment %}
+      <div class="col-lg-5 my-5 mx-auto text-center">
+        <table class="table table-striped">
+          <caption>
+            Portefeuilles
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Nom</th>
+              <th scope="col">Fonds</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for wallet in wallets %}
+
+            <tr>
+              <th scope="row">{{ wallet.id }}</th>
+              <td>{{ wallet.name }}</td>
+              <td>{{ wallet.funds }}</td>
+            </tr>
+
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% comment %} Assets & Postings {% endcomment %}
+    <div class="row">
+      {% comment %} Assets {% endcomment %}
+      <div class="col-lg-5 my-5 mx-auto text-center">
+        <table class="table table-striped">
+          <caption>
+            Actifs
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Propriétaire</th>
+              <th scope="col">Nom</th>
+              <th scope="col">Cote</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for asset in assets %}
+
+            <tr>
+              <th scope="row">{{ asset.id }}</th>
+              <td>{{ asset.owner }}</td>
+              <td>{{ asset.name }}</td>
+              <td>{{ asset.rating }}</td>
+            </tr>
+
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% comment %} Postings {% endcomment %}
+      <div class="col-lg-5 my-5 mx-auto text-center">
+        <table class="table table-striped">
+          <caption>
+            Annonces
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Titre</th>
+              <th scope="col">Disponible</th>
+              <th scope="col">Ajouté</th>
+              <th scope="col">Coût</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for posting in postings %}
+
+            <tr>
+              <th scope="row">{{ posting.id }}</th>
+              <td>{{ posting.title }}</td>
+              <td>{% if posting.available %} Oui {% else %} Non {% endif %}</td>
+              <td>{{ posting.date_posted }}</td>
+              <td>{{ posting.cost_per_day }}</td>
+            </tr>
+
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</body>
+{% endblock content %}

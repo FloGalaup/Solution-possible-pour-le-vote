@@ -1,0 +1,62 @@
+{% extends '../base.html' %} {% load static %} {% block content %}
+<!-- Page Content -->
+<div class="banner header-text">
+  <div class="banner-item-01">
+    <div class="text-content">
+      <h2>Ajouter une propriétée</h2>
+    </div>
+  </div>
+</div>
+<body>
+  <div></div>
+  <div class="container">
+    <div class="row">
+      <div
+        class="col-lg-6 col-md-10 my-5 mx-auto text-center"
+        id="main-content"
+      >
+        <h4 class="mb-5">Information sur votre propriété</h4>
+        {% if user %}
+
+        <form action="{% url 'add_asset' user.id %}" method="POST">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="add_asset_name">Nom</label>
+            <input
+              type="text"
+              class="form-control"
+              id="add_asset_name"
+              name="add_asset_name"
+              placeholder="Nom"
+            />
+          </div>
+          <div class="form-group">
+            <label for="add_asset_description">Description</label>
+            <input
+              type="text"
+              class="form-control"
+              id="add_asset_description"
+              name="add_asset_description"
+              placeholder="Description"
+            />
+          </div>
+          <div class="form-group">
+            <label for="add_asset_image">Image</label>
+            <input
+              type="file"
+              class="form-control-file"
+              id="add_asset_image"
+              name="add_asset_image"
+            />
+          </div>
+          <button type="submit" class="btn btn-outline-primary my-3">
+            Ajouter
+          </button>
+        </form>
+
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</body>
+{% endblock content %}

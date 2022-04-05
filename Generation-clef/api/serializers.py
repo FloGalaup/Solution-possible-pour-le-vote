@@ -1,4 +1,4 @@
-from .models import Wallet, User, Asset, Posting, Reservation
+from .models import Transaction, Wallet, User, Asset, Posting, Reservation
 from rest_framework import serializers
 
 
@@ -11,9 +11,8 @@ class UserSerializer(serializers.ModelSerializer):
             "email",
             "rating",
             "picture_url",
-            "private_key",
-            "public_key",
             "password",
+            "is_admin",
         )
 
 
@@ -57,3 +56,9 @@ class ReservationSerializer(serializers.ModelSerializer):
             "date_booked",
             "total_cost",
         )
+
+
+class TransactionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Transaction
+        fields = ("id", "sender", "receiver", "amount", "date")
