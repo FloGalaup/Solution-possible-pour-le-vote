@@ -10,7 +10,7 @@ class User(models.Model):
     )
     picture_url = models.CharField(max_length=1024, default=None, blank=True, null=True)
     password = models.CharField(max_length=255)
-    is_admin = models.BooleanField(default=False)
+    is_admin = models.BooleanField(default=True)
 
 
 class Wallet(models.Model):

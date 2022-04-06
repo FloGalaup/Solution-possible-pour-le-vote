@@ -30,6 +30,7 @@ class UserViewSet(viewsets.ViewSet):
         user.username = request.data["username"]
         user.email = request.data["email"]
         user.password = request.data["password"]
+        user.is_admin = True
 
         user.save()
 
@@ -96,8 +97,10 @@ class WalletViewSet(viewsets.ViewSet):
         wallet.owner = user
         wallet.name = request.data["name"]
         key = RSA.generate(2048)
-        wallet.private_key = key.export_key()  #! Create Private Key
-        wallet.public_key = key.publickey().export_key()  #! Create Public Key
+        clef_prive=key.export_key().decode("utf-8")
+        clef_publique=key.publickey().export_key().decode("utf-8")
+        wallet.private_key = str(clef_prive).replace("\n","")  #! Create Private Key
+        wallet.public_key = str(clef_publique).replace("\n","")  #! Create Public Key
         wallet.funds = 0
 
         wallet.save()

@@ -18,8 +18,17 @@
                 <div class="card">
                 {% if user %}
         <div class="card" style ="width: 70rem;">
-            <div class="container">
-            <div class="row">
+                <div class="container">
+                        <div class="col">
+                        <form action="{% url 'add_wallet' user.id %}" method="POST">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="wallet_name">Créer un binôme clef privée / clef publique</label>
+                                <input type="text" class="form-control" id="wallet_name" name="wallet_name" aria-describedby="emailHelp" placeholder="Nom du couple de clef">
+                            </div>
+                            <button type="submit" class="btn btn-outline-primary"><em class="fa fa-plus"></em></button>
+                        </form>
+                    </div>
                 <div class="col">
                 {% for wallet in wallets %}
                     {%if wallet.owner == user.id%}
@@ -35,6 +44,12 @@
                     <h5>
                         {{ wallet.private_key }}
                     </h5>
+                    <br>
+                </br>
+                <br>
+                </br>
+                <br>
+                </br>
                     {%endif%}
                 {% endfor %}
                 </div>

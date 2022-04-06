@@ -120,9 +120,9 @@ def add_wallet(request, user_id):
     create_wallet(request, user_id)
 
     if is_admin(request):
-        return redirect("dashboard_admin", user_id)
+        return redirect("view_key", user_id)
     else:
-        return redirect("dashboard", user_id)
+        return redirect("view_key", user_id)
 
 
 def create_posting(request, user_id, asset_id):
