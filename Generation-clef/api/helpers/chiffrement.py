@@ -33,7 +33,7 @@ with open(filename,"rb") as f:
 
 #https://pycryptodome.readthedocs.io/en/latest/src/cipher/oaep.html
 #Chiffrement message
-message = b"Alice paye 500 euros a Bob"
+message = b"Alice vote contre Poutine"
 key = RSA.importKey(open("public.pem").read())
 cipher = PKCS1_OAEP.new(key)
 #conversion du hash pour utiliser encrypt

@@ -1,4 +1,4 @@
-from .models import Transaction, Wallet, User, Asset, Posting, Reservation
+from .models import Vote, Wallet, User
 from rest_framework import serializers
 
 
@@ -9,56 +9,18 @@ class UserSerializer(serializers.ModelSerializer):
             "id",
             "username",
             "email",
-            "rating",
-            "picture_url",
             "password",
-            "is_admin",
         )
 
 
 class WalletSerializer(serializers.ModelSerializer):
     class Meta:
         model = Wallet
-        fields = ("id", "owner", "name", "private_key", "public_key", "funds")
+        fields = ("id", "private_key", "public_key")
 
-
-class AssetSerializer(serializers.ModelSerializer):
+class VoteSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Asset
-        fields = ("id", "owner", "name", "description", "image_url", "rating")
+        model = Vote
+        fields = ("id","timestamp","vote","hash","hash_publique")
 
 
-class PostingSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Posting
-        fields = (
-            "id",
-            "asset",
-            "title",
-            "description",
-            "date_posted",
-            "last_modified",
-            "starting_date",
-            "end_date",
-            "cost_per_day",
-        )
-
-
-class ReservationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Reservation
-        fields = (
-            "id",
-            "posting",
-            "user",
-            "starting_date",
-            "end_date",
-            "date_booked",
-            "total_cost",
-        )
-
-
-class TransactionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Transaction
-        fields = ("id", "sender", "receiver", "amount", "date")

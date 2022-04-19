@@ -21,5 +21,5 @@ def get_wallet(request, id_):
 
 
 def create_wallet(request, id_):
-    wallet = {"user_id": id_, "name": request.POST["wallet_name"]}
+    wallet = {"user_id": id_}
     requests.post(f"http://localhost:8000/api/v1/wallets/", data=wallet)

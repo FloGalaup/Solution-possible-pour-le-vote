@@ -74,9 +74,24 @@
 
               {% if request.session.username and request.session.id_ %}
               <li
+              class="nav-item {% if title == 'view_key' %} active {% endif %}"
+            >
+              <a class="nav-link" href="{% url 'view_key' request.session.id_%}">Création du couple de clefs</a>
+            </li>
+              <li
                 class="nav-item {% if title == 'view_key' %} active {% endif %}"
               >
-                <a class="nav-link" href="{% url 'view_key' request.session.id_%}">Création du couple de clef</a>
+                <a class="nav-link" href="{% url 'view_key2' request.session.id_%}">Couple de clefs</a>
+              </li>
+              <li
+                class="nav-item {% if title == 'vote' %} active {% endif %}"
+              >
+                <a class="nav-link" href="{% url 'vote' request.session.id_%}">Simulation de vote</a>
+              </li>
+              <li
+                class="nav-item {% if title == 'vote2' %} active {% endif %}"
+              >
+                <a class="nav-link" href="{% url 'vote2' request.session.id_%}">Vote</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="{% url 'logout' %}">Déconnexion</a>

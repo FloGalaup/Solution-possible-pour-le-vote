@@ -6,7 +6,7 @@
 <div class="banner header-text">
     <div class="banner-item-01">
         <div class="text-content">
-            <h2>Créer son couple de clefs de manière sécurisée</h2>
+            <h2>Voir son vote ainsi que son hash</h2>
         </div>
     </div>
 </div>
@@ -21,30 +21,34 @@
             <div class="container">
             <div class="row">
                 <div class="col">
-                    <form action="{% url 'add_wallet' user.id %}" method="POST">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            <label for="wallet_name">Créer un binôme clef privée / clef publique</label>
-                        </div>
-                        <button type="submit" class="btn btn-outline-primary"><em class="fa fa-plus"></em></button>
-                    </form>
+                {% for vote in votes %}
                     <h5 class="card-text">
-                        </em> {{ wallet.public_key }}
+                        </em> {{ vote.vote }}
                     </h5>
-                    <br>
-                    </br>
                     <br>
                     </br>
                     <br>
                     </br>
                     <h5>
-                        {{ wallet.private_key }}
+                        {{ vote.timestamp }}
                     </h5>
-                </br>
                 <br>
                 </br>
                 <br>
                 </br>
+                <h5>
+                    Signature avec clef privée :
+                    {{ vote.hash }}
+                </h5>
+                <br>
+                </br>
+                <br>
+                </br>
+                <h5>
+                    Vérification avec clef publique :
+                    {{ vote.hash_publique }}
+                </h5>
+                {% endfor %}
                 </div>
             </div>
             </div>

@@ -1,12 +1,9 @@
 from datetime import datetime
-from .models import Transaction, User, Wallet, Asset, Posting, Reservation
+from .models import User, Wallet, Vote
 from .serializers import (
-    TransactionSerializer,
     UserSerializer,
     WalletSerializer,
-    AssetSerializer,
-    PostingSerializer,
-    ReservationSerializer,
+    VoteSerializer,
 )
 from .helpers.cryptography import create_hash
 from .helpers.utils import calculate_reservation_cost
@@ -16,6 +13,9 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from Crypto.PublicKey import RSA
 import datetime
+from Crypto.PublicKey import RSA
+from Crypto.Hash import SHA256
+from Crypto.Signature import PKCS1_v1_5
 
 class UserViewSet(viewsets.ViewSet):
     def list(self, request):
@@ -30,7 +30,6 @@ class UserViewSet(viewsets.ViewSet):
         user.username = request.data["username"]
         user.email = request.data["email"]
         user.password = request.data["password"]
-        user.is_admin = True
 
         user.save()
 
@@ -52,10 +51,7 @@ class UserViewSet(viewsets.ViewSet):
 
         user.username = request.data["username"]
         user.email = request.data["email"]
-        user.rating = request.data["rating"]
-        user.picture_url = request.data["picture_url"]
         user.password = request.data["password"]
-        user.is_admin = request.data["is_admin"]
 
         user.save()
 
@@ -82,7 +78,7 @@ class UserViewSet(viewsets.ViewSet):
 
 class WalletViewSet(viewsets.ViewSet):
     def list(self, request):
-        wallets = Wallet.objects.all().order_by("funds")
+        wallets = Wallet.objects.all().order_by("id")
         wallets_serializer = WalletSerializer(wallets, many=True)
 
         return Response(wallets_serializer.data, status=status.HTTP_200_OK)
@@ -94,14 +90,11 @@ class WalletViewSet(viewsets.ViewSet):
         queryset = User.objects.all()
         user = get_object_or_404(queryset, pk=pk)
 
-        wallet.owner = user
-        wallet.name = request.data["name"]
         key = RSA.generate(2048)
         clef_prive=key.export_key().decode("utf-8")
         clef_publique=key.publickey().export_key().decode("utf-8")
         wallet.private_key = str(clef_prive).replace("\n","")  #! Create Private Key
         wallet.public_key = str(clef_publique).replace("\n","")  #! Create Public Key
-        wallet.funds = 0
 
         wallet.save()
 
@@ -121,9 +114,6 @@ class WalletViewSet(viewsets.ViewSet):
         queryset = Wallet.objects.all()
         wallet = get_object_or_404(queryset, pk=pk)
 
-        wallet.name = request.data["name"]
-        wallet.funds = request.data["funds"]
-
         wallet.save()
 
         wallet_serializer = WalletSerializer(wallet)
@@ -138,259 +128,69 @@ class WalletViewSet(viewsets.ViewSet):
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(detail=True, methods=["PATCH"])
-    def add_funds(self, request, pk=None):
-        pass
-
-    @action(detail=True, methods=["POST"])
-    def send_funds(self, request, pk=None):
-        pass
-
-
-class AssetViewSet(viewsets.ViewSet):
+class VoteViewSet(viewsets.ViewSet):
     def list(self, request):
-        assets = Asset.objects.all().order_by("name")
-        assets_serializer = AssetSerializer(assets, many=True)
+        votes = Vote.objects.all().order_by("id")
+        votes_serializer = VoteSerializer(votes, many=True)
 
-        return Response(assets_serializer.data, status=status.HTTP_200_OK)
+        return Response(votes_serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request):
-        asset = Asset()
+        vote = Vote()
 
-        pk = request.data["user_id"]
-        queryset = User.objects.all()
-        user = get_object_or_404(queryset, pk=pk)
+        timestamp=datetime.datetime.now().timestamp()
+        timestamp=(str(timestamp)).encode('ascii')
+        vote.timestamp = timestamp.decode("utf-8")
+        vote.vote = request.data["vote"]
+        key = RSA.generate(2048)
+        clef_prive=key.export_key().decode("utf-8")
+        clef_publique=key.publickey().export_key().decode("utf-8")
+        vote.private_key = str(clef_prive).replace("\n","")  #! Create Private Key
+        vote.public_key = str(clef_publique).replace("\n","")  #! Create Public Key
+        h = SHA256.new((vote.vote).encode("utf-8"))
+        rsa = RSA.importKey(clef_prive)
+        signer = PKCS1_v1_5.new(rsa)
+        signature = signer.sign(h)
+        vote.hash = signature
 
-        asset.owner = user
-        asset.name = request.data["name"]
-        asset.description = request.data["description"]
-        asset.image_url = request.data["image_url"]
-        asset.rating = None
+        #hash clé publique
+        rsa2 = RSA.importKey(clef_publique)
+        signer2 = PKCS1_v1_5.new(rsa2)
+        rsp = "Success" if (signer2.verify(h, signature)) else " Verification Failure"
+        vote.hash_publique = rsp
 
-        asset.save()
+        vote.save()
 
-        asset_serializer = AssetSerializer(asset)
+        vote_serializer = VoteSerializer(vote)
 
-        return Response(asset_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(vote_serializer.data, status=status.HTTP_201_CREATED)
 
     def retrieve(self, request, pk=None):
-        queryset = Asset.objects.all()
-        asset = get_object_or_404(queryset, pk=pk)
+        queryset = Vote.objects.all()
+        vote = get_object_or_404(queryset, pk=pk)
 
-        asset_serializer = AssetSerializer(asset)
+        vote_serializer = VoteSerializer(vote)
 
-        return Response(asset_serializer.data, status=status.HTTP_200_OK)
+        return Response(vote_serializer.data, status=status.HTTP_200_OK)
 
     def update(self, request, pk=None):
-        queryset = Asset.objects.all()
-        asset = get_object_or_404(queryset, pk=pk)
+        queryset = Vote.objects.all()
+        vote = get_object_or_404(queryset, pk=pk)
 
-        asset.name = request.data["name"]
-        asset.description = request.data["description"]
-        asset.image_url = request.data["image_url"]
-        asset.rating = request.data["rating"]
+        vote.timestamp = request.data["timestamp"]
+        vote.vote = request.data["vote"]
+        vote.hash = request.data["hash"]
 
-        asset.save()
+        vote.save()
 
-        asset_serializer = AssetSerializer(asset)
+        vote_serializer = WalletSerializer(vote)
 
-        return Response(asset_serializer.data, status=status.HTTP_200_OK)
-
-    def destroy(self, request, pk=None):
-        queryset = Asset.objects.all()
-        asset = get_object_or_404(queryset, pk=pk)
-
-        asset.delete()
-
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-    @action(detail=True, methods=["POST"])
-    def custom(self, request, pk=None):
-        pass
-
-
-class PostingViewSet(viewsets.ViewSet):
-    def list(self, request):
-        postings = Posting.objects.all().order_by("title")
-        postings_serializer = PostingSerializer(postings, many=True)
-
-        return Response(postings_serializer.data, status=status.HTTP_200_OK)
-
-    def create(self, request):
-        posting = Posting()
-
-        pk = request.data["asset_id"]
-        queryset = Asset.objects.all()
-        asset = get_object_or_404(queryset, pk=pk)
-
-        posting.asset = asset
-        posting.title = request.data["title"]
-        posting.description = request.data["description"]
-        posting.available = True
-
-        date_posted = datetime.now()
-        posting.date_posted = date_posted
-        posting.last_modified = date_posted
-
-        posting.starting_date = request.data["starting_date"]
-        posting.end_date = request.data["end_date"]
-        posting.cost_per_day = request.data["cost_per_day"]
-
-        posting.save()
-
-        posting_serializer = PostingSerializer(posting)
-
-        return Response(posting_serializer.data, status=status.HTTP_201_CREATED)
-
-    def retrieve(self, request, pk=None):
-        queryset = Posting.objects.all()
-        posting = get_object_or_404(queryset, pk=pk)
-
-        posting_serializer = PostingSerializer(posting)
-
-        return Response(posting_serializer.data, status=status.HTTP_200_OK)
-
-    def update(self, request, pk=None):
-        queryset = Posting.objects.all()
-        posting = get_object_or_404(queryset, pk=pk)
-
-        posting.title = request.data["title"]
-        posting.description = request.data["description"]
-        posting.available = request.data["available"]
-        posting.last_modified = datetime.now()
-        posting.starting_date = request.data["starting_date"]
-        posting.end_date = request.data["end_date"]
-        posting.cost_per_day = request.data["cost_per_day"]
-
-        posting.save()
-
-        posting_serializer = PostingSerializer(posting)
-
-        return Response(posting_serializer.data, status=status.HTTP_200_OK)
+        return Response(vote_serializer.data, status=status.HTTP_200_OK)
 
     def destroy(self, request, pk=None):
-        queryset = Posting.objects.all()
-        posting = get_object_or_404(queryset, pk=pk)
+        queryset = Vote.objects.all()
+        vote = get_object_or_404(queryset, pk=pk)
 
-        posting.delete()
-
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-    @action(detail=True, methods=["POST"])
-    def custom(self, request, pk=None):
-        pass
-
-
-class ReservationViewSet(viewsets.ViewSet):
-    def list(self, request):
-        reservations = Reservation.objects.all().order_by("starting_date")
-        reservations_serializer = ReservationSerializer(reservations, many=True)
-
-        return Response(reservations_serializer.data, status=status.HTTP_200_OK)
-
-    def create(self, request):
-        reservation = Reservation()
-
-        posting_pk = request.data["posting_id"]
-        posting_queryset = Posting.objects.all()
-        posting = get_object_or_404(posting_queryset, pk=posting_pk)
-
-        user_pk = request.data["user_id"]
-        user_queryset = User.objects.all()
-        user = get_object_or_404(user_queryset, pk=user_pk)
-
-        reservation.posting = posting
-        reservation.user = user
-        reservation.starting_date = request.data["starting_date"]
-        reservation.end_date = request.data["end_date"]
-        reservation.date_booked = datetime.now()
-        reservation.last_modified = datetime.now()
-        reservation.total_cost = calculate_reservation_cost(posting)  #! PAS IMPLÉMENTÉ
-
-        reservation.save()
-
-        reservation_serializer = ReservationSerializer(reservation)
-
-        return Response(reservation_serializer.data, status=status.HTTP_201_CREATED)
-
-    def retrieve(self, request, pk=None):
-        queryset = Reservation.objects.all()
-        reservation = get_object_or_404(queryset, pk=pk)
-
-        reservation_serializer = ReservationSerializer(reservation)
-
-        return Response(reservation_serializer.data, status=status.HTTP_200_OK)
-
-    def update(self, request, pk=None):
-        queryset = Reservation.objects.all()
-        reservation = get_object_or_404(queryset, pk=pk)
-
-        posting_pk = request.data["posting_id"]
-        posting_queryset = Posting.objects.all()
-        posting = get_object_or_404(posting_queryset, pk=posting_pk)
-
-        user_pk = request.data["user_id"]
-        user_queryset = User.objects.all()
-        user = get_object_or_404(user_queryset, pk=user_pk)
-
-        reservation.posting = posting
-        reservation.user = user
-        reservation.starting_date = request.data["starting_date"]
-        reservation.end_date = request.data["end_date"]
-        reservation.last_modified = datetime.now()
-        reservation.total_cost = calculate_reservation_cost(posting)
-
-        reservation.save()
-
-        reservation_serializer = ReservationSerializer(reservation)
-
-        return Response(reservation_serializer.data, status=status.HTTP_200_OK)
-
-    def destroy(self, request, pk=None):
-        queryset = Reservation.objects.all()
-        reservation = get_object_or_404(queryset, pk=pk)
-
-        reservation.delete()
+        vote.delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-    @action(detail=True, methods=["POST"])
-    def custom(self, request, pk=None):
-        pass
-
-
-class TransactionViewSet(viewsets.ViewSet):
-    def list(self, request):
-        transactions = Transaction.objects.all().order_by("date")
-        transactions_serializer = TransactionSerializer(transactions, many=True)
-
-        return Response(transactions_serializer.data, status=status.HTTP_200_OK)
-
-    def create(self, request):
-        transaction = Transaction()
-
-        wallet_queryset = Wallet.objects.all()
-        sender_pk = request.data["sender_id"]
-        sender = get_object_or_404(wallet_queryset, pk=sender_pk)
-
-        receiver_pk = request.data["receiver_id"]
-        receiver = get_object_or_404(wallet_queryset, pk=receiver_pk)
-
-        transaction.sender = sender
-        transaction.receiver = receiver
-        transaction.amount = request.data["amount"]
-        transaction.date = datetime.now()
-
-        transaction.save()
-
-        transaction_serializer = TransactionSerializer(transaction)
-
-        return Response(transaction_serializer.data, status=status.HTTP_201_CREATED)
-
-    def retrieve(self, request, pk=None):
-        queryset = Transaction.objects.all()
-        transaction = get_object_or_404(queryset, pk=pk)
-
-        transaction_serializer = TransactionSerializer(transaction)
-
-        return Response(transaction_serializer.data, status=status.HTTP_200_OK)
