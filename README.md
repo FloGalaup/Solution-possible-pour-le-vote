@@ -17,6 +17,7 @@ git clone https://github.com/FloGalaup/Solution-possible-pour-le-vote.git
 ```
 cd Solution-possible-pour-le-vote/
 pip install -r requirements.txt
+pip install cryptodome
 ```
 
 ### Lancer le serveur
